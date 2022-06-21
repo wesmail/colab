@@ -147,9 +147,9 @@ class Engine:
         train_sampler = SubsetRandomSampler(self.indices['train_idxs'])
         val_sampler = SubsetRandomSampler(self.indices['val_idxs'])
         test_sampler = SubsetRandomSampler(self.indices['test_idxs'])
-        train_sampler = DistributedSamplerWrapper(sampler=train_sampler, rank=self.rank, seed=self.seed)
-        val_sampler = DistributedSamplerWrapper(sampler=val_sampler, rank=self.rank, seed=self.seed)
-        test_sampler = DistributedSamplerWrapper(sampler=test_sampler, rank=self.rank, seed=self.seed)
+        #train_sampler = DistributedSamplerWrapper(sampler=train_sampler, rank=self.rank, seed=self.seed)
+        #val_sampler = DistributedSamplerWrapper(sampler=val_sampler, rank=self.rank, seed=self.seed)
+        #test_sampler = DistributedSamplerWrapper(sampler=test_sampler, rank=self.rank, seed=self.seed)
 
         self.train_dldr = None
         self.val_dldr   = None
