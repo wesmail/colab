@@ -265,7 +265,7 @@ class CNNmPMTDataset(H5Dataset):
 
         data_dict["data"] = processed_data.double()
 
-        return data_dict
+        return data_dict['data'], data_dict['labels']
 
 
     def horizontal_flip(self, data):
