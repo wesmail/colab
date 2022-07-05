@@ -117,11 +117,12 @@ class Engine:
     Performs training and evaluation
     """
 
-    def __init__(self, rank, model, gpu, train_dataset, config):
+    def __init__(self, rank, model, gpu, train_dataset, config, is_graph):
         self.model = model
         self.device = torch.device(gpu)
         self.rank = rank
         self.world_size = config.world_size
+        self.is_graph = is_graph
 
         self.model.to(self.device)
 
@@ -155,19 +156,35 @@ class Engine:
         self.val_dldr   = None
         self.test_dldr  = None
 
-
-        self.train_dldr=GraphDataLoader(self.train_dataset,
-                                   batch_size=config.batch_size_train,
-                                   shuffle=False,
-                                   sampler=train_sampler)
-        self.val_dldr=GraphDataLoader(self.train_dataset,
-                                 batch_size=config.batch_size_val,
-                                 shuffle=False,
-                                 sampler=val_sampler)
-        self.test_dldr=GraphDataLoader(self.train_dataset,
-                                  batch_size=config.batch_size_test,
-                                  shuffle=False,
-                                  sampler=val_sampler)
+        if not self.is_graph:
+            self.train_dldr=DataLoader(self.train_dataset,
+                                       batch_size=config.batch_size_train,
+                                       shuffle=False,
+                                       sampler=train_sampler)
+            self.val_dldr=DataLoader(self.train_dataset,
+                                     batch_size=config.batch_size_val,
+                                     shuffle=False,
+                                     sampler=val_sampler)
+            self.test_dldr=DataLoader(self.train_dataset,
+                                      batch_size=config.batch_size_test,
+                                      shuffle=False,
+                                      sampler=val_sampler)
+        else:
+            self.train_dldr=GraphDataLoader(self.train_dataset, \
+                                       batch_size=config.batch_size_train, \
+                                       shuffle=False, \
+                                       sampler=train_sampler, \
+                                       num_workers=0)
+            self.val_dldr=GraphDataLoader(self.train_dataset, \
+                                     batch_size=config.batch_size_val, \
+                                     shuffle=False, \
+                                     sampler=val_sampler, \
+                                     num_workers=0)
+            self.test_dldr=GraphDataLoader(self.train_dataset, \
+                                      batch_size=config.batch_size_test, \
+                                      shuffle=False, \
+                                      sampler=test_sampler, \
+                                      num_workers=0)
 
         self.val_iter=iter(self.val_dldr)
         self.test_iter=iter(self.test_dldr)
@@ -259,8 +276,7 @@ class Engine:
 
                     # Data and label
                     self.data = val_data[0]
-                    self.label = val_data[1]
-
+                    self.label = val_data[1]                 
 
                     res = self.forward(False)
                     if self.rank == 0:
