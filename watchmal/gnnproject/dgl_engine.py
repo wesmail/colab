@@ -216,8 +216,11 @@ class Engine:
             self.data = self.data.to(self.device)
             self.label = self.label.to(self.device)
 
-
-            linear_model_out = self.model(self.data, self.data.ndata['x'])
+            linear_model_out = None
+            if self.is_graph:
+                linear_model_out = self.model(self.data, self.data.ndata['x'])
+            else:
+                linear_model_out = self.model(self.data)
             # Training
 
             self.loss = self.criterion(linear_model_out,self.label)
